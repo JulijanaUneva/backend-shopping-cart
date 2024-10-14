@@ -181,9 +181,16 @@ export const deleteProductFromCart = async (req, res) => {
     );
 
     if (productIndex >= 0) {
+      const deletedProduct = cart.products[productIndex];
       cart.products.splice(productIndex, 1);
       await cart.save();
-      res.status(200).json({ message: "Product deleted", cart });
+      res
+        .status(200)
+        .json({
+          message: "Product deleted",
+          deletedProduct,
+          remainingProducts: cart.products,
+        });
     } else {
       res.status(404).json({ message: "Product not found in cart" });
     }
