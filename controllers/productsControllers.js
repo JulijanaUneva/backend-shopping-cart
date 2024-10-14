@@ -40,3 +40,48 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const { name, price, description, category } = req.body;
+
+  try {
+    //aziriranje proizvod bez validacija
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { name, price, description, category },
+      { new: true } // vraka azuriran proizvod
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const remainingProducts = await Product.find();
+
+    res.status(200).json({
+      message: "Product deleted successfully",
+      deletedProduct: deletedProduct,
+      totalRemaining: remainingProducts.length,
+      remainingProducts,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
