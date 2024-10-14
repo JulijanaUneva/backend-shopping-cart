@@ -9,9 +9,10 @@ import { authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", authorize, addProductToCart);
-router.get("/", authorize, getUserCart);
-router.patch("/:productId", authorize, updateProductQuantity);
-router.delete("/:productId", authorize, deleteProductFromCart);
+router.route("/").get(authorize, getUserCart).post(authorize, addProductToCart);
+router
+  .route("/:productId")
+  .patch(authorize, updateProductQuantity)
+  .delete(authorize, deleteProductFromCart);
 
 export default router;

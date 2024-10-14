@@ -1,22 +1,12 @@
-// controllers/cartController.js
 import Cart from "../models/Cart.js";
-// import Product from "../models/Product.js"; // За да ги проверуваш продуктите
 
-// Контролер за добивање на кошничката
 export const getUserCart = async (req, res) => {
-  // const { user } = req.body;
   const { id } = req.user;
 
   // console.log("user:", id); //proveruvam dali userot e prisuten
   if (!id) {
     return res.status(400).json({ message: "User ID is required" });
   }
-  // const userId = req.user.id; // Преземање на userId од JWT
-  // console.log("User ID:", userId);
-
-  // Наместо да бараме во база, ќе го испратиме userId
-  //   res.status(200).json({ message: "Success", userId });
-  // };
 
   try {
     const cart = await Cart.findOne({ user: id }).populate("products.product");
@@ -31,23 +21,12 @@ export const getUserCart = async (req, res) => {
   }
 };
 
-// Контролер за додавање на производ во кошничката
 export const addProductToCart = async (req, res) => {
-  // const { product } = req.body;
   const { productId, quantity } = req.body;
   const { id } = req.user;
-  //   const userId = req.user.id; // Преземање на userId од JWT
-  //   console.log("addProductCart", userId);
+
   console.log("Request body", req.body);
 
-  //   res.status(200).json({ message: "Product added", user, product });
-  // };
-
-  //   if (product[0].quantity <= 0 || !product[0].quantity) {
-  //     return res.status(400).json({ message: "Valid quantity is required" });
-  //   }
-  //novo if
-  // if (!product || product.length === 0 || product[0].quantity <= 0) {
   if (quantity <= 0) {
     return res
       .status(400)
@@ -55,10 +34,6 @@ export const addProductToCart = async (req, res) => {
   }
 
   try {
-    // console.log("User ID:", user);
-    // console.log("Product ID:", product[0].productId);
-    // console.log("Quantity:", product[0].quantity);
-
     let cart = await Cart.findOne({ user: id });
     console.log("cart", cart);
 
@@ -66,29 +41,23 @@ export const addProductToCart = async (req, res) => {
       // Ако кошничката не постои, ја креираме
       cart = new Cart({
         user: id,
-        products: [
-          // { product: product[0].productId, quantity: product[0].quantity },
-          { product: productId, quantity: quantity },
-        ],
+        products: [{ product: productId, quantity: quantity }],
       });
     } else {
       // Ако кошничката постои, го додава производот или ја зголемува количината
       const productIndex = cart.products.findIndex(
-        // (p) => p.product.toString() === product[0].productId
         (p) => p.product.toString() === productId
       ); //go bara produktot prvo vo kosnickata,proveruva dali proizvodot e najden vo kosnickata
-      // console.log(product[0].productId);
+
       console.log(productId);
 
       if (productIndex >= 0) {
-        // cart.products[productIndex].quantity += product[0].quantity;
         cart.products[productIndex].quantity += quantity;
         //ako postoi ja zgolemuvame kolicinata
       } else {
         cart.products.push({
-          // product: product[0].productId,
           product: productId,
-          // quantity: product[0].quantity,
+
           quantity: quantity,
         });
         //ako ne postoi, go dodavame noviot proizvd
@@ -108,26 +77,19 @@ export const updateProductQuantity = async (req, res) => {
   const { productId } = req.params;
   const { id } = req.user;
   const { quantity } = req.body;
-  // console.log("was ist user?", user);
-  console.log("Request Body:", req.body);
 
-  //   const userId = req.user.id;
-  //   console.log("updateProductQuantity", userId);
   console.log("Request Body:", req.body);
   console.log("Quantity", quantity);
   console.log("Updated product", productId);
-  //   res.status(200).json({ message: "Quantity updated", productId, quantity });
 
   if (!quantity || quantity <= 0) {
     return res.status(400).json({ message: "Valid quantity is required" });
   }
 
   try {
-    // const cart = await Cart.findOne({ user: user.id });
     const cart = await Cart.findOne({ user: id });
 
     if (!cart) {
-      // console.log("Cart not found for user:", user.id);
       return res.status(404).json({ message: "Cart not found" });
     }
 
@@ -150,27 +112,15 @@ export const updateProductQuantity = async (req, res) => {
   }
 };
 
-// Контролер за бришење на производ од кошничката
 export const deleteProductFromCart = async (req, res) => {
   const { productId } = req.params;
   console.log("req.user:", req.user);
   const { id } = req.user; // ovoj id od sto se imame logirano(od token) preku fja autorize
-  // const { user } = req.body;
 
   console.log("Product ID to delete:", productId);
 
-  // if (!user || !user.id) {
-  //   return res.status(400).json({ message: "User ID is required" });
-  // }
-
-  // Пример на излезот
-  // res.status(200).json({ message: "Product deleted", productId });
-
-  // const userId = req.user.id;
-
   try {
     const cart = await Cart.findOne({ user: id });
-    // const cart = await Cart.findOne({ "products[0].product": productId });
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
@@ -184,13 +134,11 @@ export const deleteProductFromCart = async (req, res) => {
       const deletedProduct = cart.products[productIndex];
       cart.products.splice(productIndex, 1);
       await cart.save();
-      res
-        .status(200)
-        .json({
-          message: "Product deleted",
-          deletedProduct,
-          remainingProducts: cart.products,
-        });
+      res.status(200).json({
+        message: "Product deleted",
+        deletedProduct,
+        remainingProducts: cart.products,
+      });
     } else {
       res.status(404).json({ message: "Product not found in cart" });
     }

@@ -1,13 +1,13 @@
 import Product from "../models/Product.js";
 
 export const getProducts = async (req, res) => {
-  // const { page = 1, limit = 3 } = req.query;
+  const { page = 1, limit = 5 } = req.query;
   const { id } = req.user;
   console.log(id);
   try {
-    const products = await Product.find();
-    // .skip((page - 1) * limit)
-    // .limit(limit);
+    const products = await Product.find()
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.status(200).json(products);
   } catch (error) {
