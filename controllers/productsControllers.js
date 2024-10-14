@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import chalk from "chalk";
 
 export const getProducts = async (req, res) => {
   const { page = 1, limit = 5 } = req.query;
@@ -46,7 +47,7 @@ export const updateProduct = async (req, res) => {
   const { name, price, description, category } = req.body;
 
   try {
-    //aziriranje proizvod bez validacija
+    //azuriranje proizvod bez validacija
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { name, price, description, category },
@@ -81,6 +82,7 @@ export const deleteProduct = async (req, res) => {
       totalRemaining: remainingProducts.length,
       remainingProducts,
     });
+    console.log(chalk.green("Product deleted successfully"));
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
