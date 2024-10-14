@@ -48,7 +48,7 @@ export const authorize = (req, res, next) => {
 // {
 //   "user": "userId123",
 //ne mi treba, koristam sega authoriz
-//   "product": [
+//  {  "product": [
 //     {
 //       "productId": "productId123",
 //       "quantity": 2

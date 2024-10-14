@@ -33,7 +33,8 @@ export const getUserCart = async (req, res) => {
 
 // Контролер за додавање на производ во кошничката
 export const addProductToCart = async (req, res) => {
-  const { product } = req.body;
+  // const { product } = req.body;
+  const { productId, quantity } = req.body;
   const { id } = req.user;
   //   const userId = req.user.id; // Преземање на userId од JWT
   //   console.log("addProductCart", userId);
@@ -46,7 +47,8 @@ export const addProductToCart = async (req, res) => {
   //     return res.status(400).json({ message: "Valid quantity is required" });
   //   }
   //novo if
-  if (!product || product[0].quantity <= 0) {
+  // if (!product || product.length === 0 || product[0].quantity <= 0) {
+  if (quantity <= 0) {
     return res
       .status(400)
       .json({ message: "Valid product and quantity are required" });
@@ -54,8 +56,8 @@ export const addProductToCart = async (req, res) => {
 
   try {
     // console.log("User ID:", user);
-    console.log("Product ID:", product[0].productId);
-    console.log("Quantity:", product[0].quantity);
+    // console.log("Product ID:", product[0].productId);
+    // console.log("Quantity:", product[0].quantity);
 
     let cart = await Cart.findOne({ user: id });
     console.log("cart", cart);
@@ -65,23 +67,29 @@ export const addProductToCart = async (req, res) => {
       cart = new Cart({
         user: id,
         products: [
-          { product: product[0].productId, quantity: product[0].quantity },
+          // { product: product[0].productId, quantity: product[0].quantity },
+          { product: productId, quantity: quantity },
         ],
       });
     } else {
       // Ако кошничката постои, го додава производот или ја зголемува количината
       const productIndex = cart.products.findIndex(
-        (p) => p.product.toString() === product[0].productId
+        // (p) => p.product.toString() === product[0].productId
+        (p) => p.product.toString() === productId
       ); //go bara produktot prvo vo kosnickata,proveruva dali proizvodot e najden vo kosnickata
-      console.log(product[0].productId);
+      // console.log(product[0].productId);
+      console.log(productId);
 
       if (productIndex >= 0) {
-        cart.products[productIndex].quantity += product[0].quantity;
+        // cart.products[productIndex].quantity += product[0].quantity;
+        cart.products[productIndex].quantity += quantity;
         //ako postoi ja zgolemuvame kolicinata
       } else {
         cart.products.push({
-          product: product[0].productId,
-          quantity: product[0].quantity,
+          // product: product[0].productId,
+          product: productId,
+          // quantity: product[0].quantity,
+          quantity: quantity,
         });
         //ako ne postoi, go dodavame noviot proizvd
       }
