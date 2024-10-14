@@ -4,6 +4,14 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
+const { JWT_SECRET } = process.env;
+
+export function verifyJwt(token) {
+  if (!token) return;
+
+  return jwt.verify(token, JWT_SECRET);
+}
+
 export const registerUser = async (req, res) => {
   const { email, password } = req.body;
 
