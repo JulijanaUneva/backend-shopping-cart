@@ -3,9 +3,7 @@ import chalk from "chalk";
 
 export const getUserCart = async (req, res) => {
   const { id } = req.user;
-
-  // console.log("user:", id);
-  //proveruvam dali userot e prisuten
+  //dali e prisuten korisnikot proveruvam preku
   if (!id) {
     return res.status(400).json({ message: "User ID is required" });
   }
@@ -39,11 +37,14 @@ export const addProductToCart = async (req, res) => {
   }
 
   try {
-    let cart = await Cart.findOne({ user: id });
+    // const product = await Product.findById(productId);
+    // if (!product) {
+    //   return res.status(404).json({ message: "Product not found" });
+    // }
+    let cart = await Cart.findOne({ user: id }).populate("products.product");
     // console.log("cart", cart);
 
     if (!cart) {
-      // Ако кошничката не постои, ја креираме
       cart = new Cart({
         user: id,
         products: [{ product: productId, quantity: quantity }],

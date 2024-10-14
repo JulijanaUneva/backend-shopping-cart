@@ -2,11 +2,16 @@ import Product from "../models/Product.js";
 import chalk from "chalk";
 
 export const getProducts = async (req, res) => {
-  const { page = 1, limit = 5 } = req.query;
+  const { page = 1, limit = 5, category } = req.query;
   const { id } = req.user;
   console.log(id);
   try {
-    const products = await Product.find()
+    const query = {};
+    if (category) {
+      query.category = category; // Додај услов за категорија
+    }
+
+    const products = await Product.find(query) //koristi query za naoganje proizvod
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -16,6 +21,7 @@ export const getProducts = async (req, res) => {
 
     res.status(200).json(products);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Server error" });
   }
 };
