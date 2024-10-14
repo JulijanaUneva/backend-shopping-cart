@@ -10,6 +10,10 @@ export const getProducts = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
+    console.log(
+      chalk.yellow(`${products.length} products retrieved successfully`)
+    );
+
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -35,6 +39,8 @@ export const addProduct = async (req, res) => {
       category,
     });
 
+    console.log(chalk.bold(chalk.cyan("Product added successfully")));
+
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (error) {
@@ -58,6 +64,8 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    console.log(chalk.bold(chalk.magenta("Product updated successfully")));
+
     res.status(200).json(updatedProduct);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -75,6 +83,8 @@ export const deleteProduct = async (req, res) => {
     }
 
     const remainingProducts = await Product.find();
+    // console.log("Remaining Products:", remainingProducts);
+    console.log(chalk.bold(chalk.blue("Product deleted successfully")));
 
     res.status(200).json({
       message: "Product deleted successfully",
@@ -82,8 +92,8 @@ export const deleteProduct = async (req, res) => {
       totalRemaining: remainingProducts.length,
       remainingProducts,
     });
-    console.log(chalk.green("Product deleted successfully"));
   } catch (error) {
+    // console.error("Error in deleteProduct:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

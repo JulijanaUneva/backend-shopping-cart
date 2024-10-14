@@ -1,22 +1,27 @@
 import Cart from "../models/Cart.js";
+import chalk from "chalk";
 
 export const getUserCart = async (req, res) => {
   const { id } = req.user;
 
-  // console.log("user:", id); //proveruvam dali userot e prisuten
+  // console.log("user:", id);
+  //proveruvam dali userot e prisuten
   if (!id) {
     return res.status(400).json({ message: "User ID is required" });
   }
 
   try {
     const cart = await Cart.findOne({ user: id }).populate("products.product");
-
+    // console.log("Retrieved cart:", cart);
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
 
+    console.log(chalk.bold(chalk.cyan("User's cart retrieved successfully: ")));
+
     res.status(200).json(cart);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -25,7 +30,7 @@ export const addProductToCart = async (req, res) => {
   const { productId, quantity } = req.body;
   const { id } = req.user;
 
-  console.log("Request body", req.body);
+  // console.log("Request body", req.body);
 
   if (quantity <= 0) {
     return res
@@ -35,7 +40,7 @@ export const addProductToCart = async (req, res) => {
 
   try {
     let cart = await Cart.findOne({ user: id });
-    console.log("cart", cart);
+    // console.log("cart", cart);
 
     if (!cart) {
       // Ако кошничката не постои, ја креираме
@@ -48,8 +53,6 @@ export const addProductToCart = async (req, res) => {
       const productIndex = cart.products.findIndex(
         (p) => p.product.toString() === productId
       ); //go bara produktot prvo vo kosnickata,proveruva dali proizvodot e najden vo kosnickata
-
-      console.log(productId);
 
       if (productIndex >= 0) {
         cart.products[productIndex].quantity += quantity;
@@ -64,10 +67,13 @@ export const addProductToCart = async (req, res) => {
       }
     }
 
+    console.log(
+      chalk.bold(chalk.magenta("Product in cart added successfully"))
+    );
+
     await cart.save();
     res.status(200).json(cart);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -77,10 +83,6 @@ export const updateProductQuantity = async (req, res) => {
   const { productId } = req.params;
   const { id } = req.user;
   const { quantity } = req.body;
-
-  console.log("Request Body:", req.body);
-  console.log("Quantity", quantity);
-  console.log("Updated product", productId);
 
   if (!quantity || quantity <= 0) {
     return res.status(400).json({ message: "Valid quantity is required" });
@@ -101,6 +103,10 @@ export const updateProductQuantity = async (req, res) => {
       cart.products[productIndex].quantity = quantity;
       cart.updatedAt = Date.now();
 
+      console.log(
+        chalk.bold(chalk.blue("Product in cart updated successfully"))
+      );
+
       await cart.save();
       res.status(200).json(cart);
     } else {
@@ -114,10 +120,8 @@ export const updateProductQuantity = async (req, res) => {
 
 export const deleteProductFromCart = async (req, res) => {
   const { productId } = req.params;
-  console.log("req.user:", req.user);
+  // console.log("req.user:", req.user);
   const { id } = req.user; // ovoj id od sto se imame logirano(od token) preku fja autorize
-
-  console.log("Product ID to delete:", productId);
 
   try {
     const cart = await Cart.findOne({ user: id });
@@ -139,6 +143,9 @@ export const deleteProductFromCart = async (req, res) => {
         deletedProduct,
         remainingProducts: cart.products,
       });
+      console.log(
+        chalk.bold(chalk.cyan("Product in cart deleted successfully"))
+      );
     } else {
       res.status(404).json({ message: "Product not found in cart" });
     }

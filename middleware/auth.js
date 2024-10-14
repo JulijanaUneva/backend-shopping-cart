@@ -16,7 +16,8 @@ export const authorize = (req, res, next) => {
   // verify the JWT token using the verifyJwt function
 
   try {
-    const decodedToken = verifyJwt(token); // ensure token verification, se zacuvuva vo req.user, ne kako do sega req.body
+    const decodedToken = verifyJwt(token); // ensure token verification,
+    //se zacuvuva vo req.user, ne kako do sega req.body
     console.log(decodedToken); // Token is valid
     req.user = decodedToken; // attach user to request object
   } catch (error) {
