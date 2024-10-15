@@ -23,7 +23,6 @@ export const registerUser = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Креирање на нов корисник со хеширана лозинка
   const user = new User({
     email,
     password: hashedPassword,
@@ -31,12 +30,10 @@ export const registerUser = async (req, res) => {
 
   await user.save();
 
-  // Генерирање на JWT токен
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
-  // Враќање на токенот
   res.cookie("token", token, { httpOnly: true });
 
   console.log(chalk.bold(chalk.blue("Register successful")));
@@ -53,13 +50,12 @@ export const loginUser = async (req, res) => {
     return res.status(400).json({ message: "User not found" });
   }
 
-  // Проверка на лозинката
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.status(400).json({ message: "Invalid credentials" });
   }
 
-  // Генерирање на JWT токен , so jwd go pretvoram mojot id , tokenot mi e ist so mojot id
+  // Генерирање на JWT токен , so jwt go pretvoram mojot id , tokenot mi e ist so mojot id
   const token = jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET,
@@ -68,7 +64,12 @@ export const loginUser = async (req, res) => {
     }
   );
 
-  // Враќање на токенот , go zacuvuvam tokenot vo moeto cookie , no moram da go pretvoram povtorno vo id broj, zatoa mi treba middleware, authorize , vo auth fcion , koja go dekodira tokenot vo id nazad. posle 10 fcii na primer sakam pak da go koristam i go zimam pak od req.user. moze i so product da se raboti, ama vo praksa povrzuvame so user.
+  // Враќање на токенот , go zacuvuvam tokenot vo moeto cookie ,
+  //no moram da go pretvoram povtorno vo id broj, zatoa mi treba middleware, authorize,
+  //vo auth fcion , koja go dekodira tokenot vo id nazad.
+  //posle 10 fcii na primer sakam pak da go koristam i go zimam pak od req.user.
+  //moze i so product da se raboti, ama vo praksa povrzuvame so user.
+
   res.cookie("jwt", token, { httpOnly: true });
 
   console.log(chalk.bold(chalk.blue("Login successful")));

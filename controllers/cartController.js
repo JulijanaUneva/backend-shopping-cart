@@ -13,7 +13,7 @@ export const getUserCart = async (req, res) => {
     const cart = await Cart.findOne({ "user.id": id }).populate(
       "products.product"
     );
-    // console.log("Retrieved cart:", cart);
+
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
@@ -46,10 +46,7 @@ export const addProductToCart = async (req, res) => {
     }
 
     const email = user.email;
-    // const product = await Product.findById(productId);
-    // if (!product) {
-    //   return res.status(404).json({ message: "Product not found" });
-    // }
+
     let cart = await Cart.findOne({ "user.id": id }).populate(
       "products.product"
     );
@@ -72,7 +69,6 @@ export const addProductToCart = async (req, res) => {
       } else {
         cart.products.push({
           product: productId,
-
           quantity: quantity,
         });
         //ako ne postoi, go dodavame noviot proizvd
@@ -91,7 +87,6 @@ export const addProductToCart = async (req, res) => {
   }
 };
 
-// Контролер за промена на количината на производот во кошничката
 export const updateProductQuantity = async (req, res) => {
   const { productId } = req.params;
   const { id } = req.user;
@@ -103,7 +98,6 @@ export const updateProductQuantity = async (req, res) => {
 
   try {
     const cart = await Cart.findOne({ "user.id": id });
-    // console.log(cart);
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
@@ -135,7 +129,8 @@ export const updateProductQuantity = async (req, res) => {
 export const deleteProductFromCart = async (req, res) => {
   const { productId } = req.params;
 
-  const { id } = req.user; // ovoj id od sto se imame logirano(od token) preku fja autorize
+  const { id } = req.user;
+  // ovoj id od sto se imame logirano(od token) preku fja autorize
 
   try {
     const cart = await Cart.findOne({ "user.id": id });

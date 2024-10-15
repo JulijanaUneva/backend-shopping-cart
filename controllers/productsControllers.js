@@ -89,7 +89,6 @@ export const deleteProduct = async (req, res) => {
     }
 
     const remainingProducts = await Product.find();
-    // console.log("Remaining Products:", remainingProducts);
     console.log(chalk.bold(chalk.blue("Product deleted successfully")));
 
     res.status(200).json({
@@ -99,7 +98,6 @@ export const deleteProduct = async (req, res) => {
       remainingProducts,
     });
   } catch (error) {
-    // console.error("Error in deleteProduct:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
