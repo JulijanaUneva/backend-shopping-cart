@@ -1,5 +1,6 @@
 import Cart from "../models/Cart.js";
 import chalk from "chalk";
+import User from "../models/Users.js";
 
 export const getUserCart = async (req, res) => {
   const { id } = req.user;
@@ -9,13 +10,17 @@ export const getUserCart = async (req, res) => {
   }
 
   try {
-    const cart = await Cart.findOne({ user: id }).populate("products.product");
+    const cart = await Cart.findOne({ "user.id": id }).populate(
+      "products.product"
+    );
     // console.log("Retrieved cart:", cart);
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    console.log(chalk.bold(chalk.cyan("User's cart retrieved successfully: ")));
+    console.log(
+      chalk.bold(chalk.cyan("User's cart retrieved successfully 🛒"))
+    );
 
     res.status(200).json(cart);
   } catch (error) {
@@ -28,8 +33,6 @@ export const addProductToCart = async (req, res) => {
   const { productId, quantity } = req.body;
   const { id } = req.user;
 
-  // console.log("Request body", req.body);
-
   if (quantity <= 0) {
     return res
       .status(400)
@@ -37,16 +40,24 @@ export const addProductToCart = async (req, res) => {
   }
 
   try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const email = user.email;
     // const product = await Product.findById(productId);
     // if (!product) {
     //   return res.status(404).json({ message: "Product not found" });
     // }
-    let cart = await Cart.findOne({ user: id }).populate("products.product");
+    let cart = await Cart.findOne({ "user.id": id }).populate(
+      "products.product"
+    );
     // console.log("cart", cart);
 
     if (!cart) {
       cart = new Cart({
-        user: id,
+        user: { id: id, email: email },
         products: [{ product: productId, quantity: quantity }],
       });
     } else {
@@ -69,12 +80,13 @@ export const addProductToCart = async (req, res) => {
     }
 
     console.log(
-      chalk.bold(chalk.magenta("Product in cart added successfully"))
+      chalk.bold(chalk.magenta("Product in cart added successfully  🛒"))
     );
 
     await cart.save();
     res.status(200).json(cart);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -90,7 +102,8 @@ export const updateProductQuantity = async (req, res) => {
   }
 
   try {
-    const cart = await Cart.findOne({ user: id });
+    const cart = await Cart.findOne({ "user.id": id });
+    // console.log(cart);
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
@@ -105,7 +118,7 @@ export const updateProductQuantity = async (req, res) => {
       cart.updatedAt = Date.now();
 
       console.log(
-        chalk.bold(chalk.blue("Product in cart updated successfully"))
+        chalk.bold(chalk.blue("Product in cart updated successfully 🛒"))
       );
 
       await cart.save();
@@ -121,11 +134,11 @@ export const updateProductQuantity = async (req, res) => {
 
 export const deleteProductFromCart = async (req, res) => {
   const { productId } = req.params;
-  // console.log("req.user:", req.user);
+
   const { id } = req.user; // ovoj id od sto se imame logirano(od token) preku fja autorize
 
   try {
-    const cart = await Cart.findOne({ user: id });
+    const cart = await Cart.findOne({ "user.id": id });
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });

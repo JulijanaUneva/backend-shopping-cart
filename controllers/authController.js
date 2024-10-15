@@ -60,9 +60,13 @@ export const loginUser = async (req, res) => {
   }
 
   // Генерирање на JWT токен , so jwd go pretvoram mojot id , tokenot mi e ist so mojot id
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const token = jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h",
+    }
+  );
 
   // Враќање на токенот , go zacuvuvam tokenot vo moeto cookie , no moram da go pretvoram povtorno vo id broj, zatoa mi treba middleware, authorize , vo auth fcion , koja go dekodira tokenot vo id nazad. posle 10 fcii na primer sakam pak da go koristam i go zimam pak od req.user. moze i so product da se raboti, ama vo praksa povrzuvame so user.
   res.cookie("jwt", token, { httpOnly: true });

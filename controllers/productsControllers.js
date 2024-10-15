@@ -4,19 +4,19 @@ import chalk from "chalk";
 export const getProducts = async (req, res) => {
   const { page = 1, limit = 5, category } = req.query;
   const { id } = req.user;
-  console.log(id);
+
   try {
     const query = {};
     if (category) {
-      query.category = category; // Додај услов за категорија
+      query.category = category;
     }
 
-    const products = await Product.find(query) //koristi query za naoganje proizvod
+    const products = await Product.find(query)
       .skip((page - 1) * limit)
       .limit(limit);
 
     console.log(
-      chalk.yellow(`${products.length} products retrieved successfully`)
+      chalk.yellow(`${products.length} products retrieved successfully 🛍️`)
     );
 
     res.status(200).json(products);
@@ -45,7 +45,7 @@ export const addProduct = async (req, res) => {
       category,
     });
 
-    console.log(chalk.bold(chalk.cyan("Product added successfully")));
+    console.log(chalk.bold(chalk.cyan("Product added successfully 🛍️")));
 
     await newProduct.save();
     res.status(201).json(newProduct);
@@ -70,7 +70,7 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    console.log(chalk.bold(chalk.magenta("Product updated successfully")));
+    console.log(chalk.bold(chalk.magenta("Product updated successfully 🛍️")));
 
     res.status(200).json(updatedProduct);
   } catch (error) {
